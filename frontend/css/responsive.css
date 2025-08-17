@@ -1,0 +1,116 @@
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    /* Typography */
+    h1 {
+        font-size: 36px;
+    }
+    
+    h2 {
+        font-size: 32px;
+    }
+    
+    .section-heading {
+        font-size: 32px;
+        margin-bottom: 40px;
+    }
+    
+    /* Header */
+    .nav-menu {
+        display: none;
+    }
+    
+    .header-content {
+        padding: 0 16px;
+    }
+    
+    /* Hero */
+    .hero {
+        padding: 120px 16px 60px;
+    }
+    
+    .hero-description {
+        font-size: 16px;
+    }
+    
+    .trust-badges {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .language-badges {
+        justify-content: center;
+    }
+    
+    /* Demo */
+    .demo-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .demo-content h2 {
+        font-size: 32px;
+    }
+    
+    /* Features, Use Cases, Styles */
+    .features-grid,
+    .use-cases-grid,
+    .styles-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    /* Pricing */
+    .pricing-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .pricing-card.featured {
+        transform: none;
+    }
+    
+    /* Integrations */
+    .integrations {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    /* Footer */
+    .footer-links {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    /* Sections */
+    section {
+        padding: 60px 16px;
+    }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .features-grid,
+    .use-cases-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .styles-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 375px) {
+    h1 {
+        font-size: 28px;
+    }
+    
+    .main-cta {
+        font-size: 16px;
+        padding: 14px 24px;
+    }
+    
+    .app-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}

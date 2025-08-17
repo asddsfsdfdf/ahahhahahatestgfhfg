@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ChartMaster AI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        /* Additional Login Styles */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Background */
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .auth-card {
+            background: white;
+            padding: 48px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .logo-ai {
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+
+        .welcome-text {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #6b7280;
+        }
+
+        .toggle-password:hover {
+            color: #374151;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        .forgot-password a {
+            color: #3B82F6;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 32px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            position: relative;
+            margin: 32px 0;
+            text-align: center;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 16px;
+            position: relative;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 32px;
+            color: #6b7280;
+        }
+
+        .auth-link a {
+            color: #3B82F6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .success-message.show {
+            display: flex;
+        }
+
+        /* Back to home link */
+        .back-home {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: opacity 0.3s;
+            z-index: 2;
+        }
+
+        .back-home:hover {
+            opacity: 0.8;
+        }
+
+        /* Demo Account Info */
+        .demo-info {
+            background: #f0f9ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .demo-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+
+        .demo-credentials {
+            font-family: monospace;
+            font-size: 14px;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <a href="/" class="back-home">
+            <span>←</span>
+            Back to home
+        </a>
+
+        <div class="auth-card">
+            <a href="/" class="logo-link">
+                <span class="logo-icon">📈</span>
+                <span class="logo-text">ChartMaster</span>
+                <span class="logo-text logo-ai">AI</span>
+            </a>
+
+            <h1>Welcome Back</h1>
+            <p class="welcome-text">Login to access your ChartMaster AI dashboard</p>
+
+            <!-- Error/Success Messages -->
+            <div class="error-message" id="errorMessage">
+                <span>⚠️</span>
+                <span id="errorText">Invalid email or password</span>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                <span>✅</span>
+                <span id="successText">Login successful! Redirecting...</span>
+            </div>
+
+            <!-- Demo Account Info (remove in production) -->
+            <div class="demo-info" id="demoInfo">
+                <h3>🔑 Demo Account (for testing)</h3>
+                <div class="demo-credentials">
+                    Email: lucastrusi05@gmail.com<br>
+                    Password: Check your welcome page
+                </div>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="Enter your email"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            placeholder="Enter your password"
+                            required
+                            autocomplete="current-password"
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <span id="passwordToggle">👁️</span>
+                        </button>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="/forgot-password">Forgot password?</a>
+                    </div>
+                </div>
+                
+                <button type="submit" class="auth-btn" id="submitBtn">
+                    Login →
+                </button>
+            </form>
+            
+            <div class="divider">
+                <span>or</span>
+            </div>
+            
+            <p class="auth-link">
+                Don't have an account? <a href="/register">Start Free Trial</a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('passwordToggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '👁️‍🗨️';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
+            }
+        }
+
+        // Hide demo info after 30 seconds
+        setTimeout(() => {
+            const demoInfo = document.getElementById('demoInfo');
+            if (demoInfo) {
+                demoInfo.style.display = 'none';
+            }
+        }, 30000);
+
+        // In login.html - Ersetzen Sie den login form handler mit diesem:
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    
+    // Reset messages
+    errorMessage.classList.remove('show');
+    successMessage.classList.remove('show');
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+        console.log('Attempting login for:', email);
+        
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        
+        console.log('Login response status:', response.status);
+        
+        const data = await response.json();
+        console.log('Login response data:', data);
+        
+        if (response.ok && data.token) {
+            // Store token
+            localStorage.setItem('token', data.token);
+            console.log('Token saved to localStorage');
+            
+            // Test the token immediately
+            const testResponse = await fetch('/api/user', {
+                headers: { 'Authorization': `Bearer ${data.token}` }
+            });
+            
+            console.log('Token test response:', testResponse.status);
+            
+            if (!testResponse.ok) {
+                console.error('Token test failed!');
+                throw new Error('Token validation failed');
+            }
+            
+            // Show success message
+            successMessage.classList.add('show');
+            
+            // Redirect to dashboard after a short delay
+            setTimeout(() => {
+                console.log('Redirecting to dashboard...');
+                window.location.href = '/dashboard';
+            }, 1000);
+        } else {
+            // Show error message
+            document.getElementById('errorText').textContent = 
+                data.error || 'Invalid email or password';
+            errorMessage.classList.add('show');
+            
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Login →';
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        
+        // Show error message
+        document.getElementById('errorText').textContent = 
+            'Network error. Please try again.';
+        errorMessage.classList.add('show');
+        
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login →';
+    }
+});
+
+        // Auto-focus email field
+        document.getElementById('email').focus();
+
+        // Check if already logged in
+        if (localStorage.getItem('token')) {
+            // Optionally redirect to dashboard if already logged in
+            // window.location.href = '/dashboard';
+        }
+    </script>
+</body>
+</html>

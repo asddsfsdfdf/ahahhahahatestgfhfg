@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome - ChartMaster AI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card welcome-card">
+            <div class="success-icon">✅</div>
+            <h1>Welcome to ChartMaster AI!</h1>
+            <p>Your 3-day free trial has started</p>
+            
+            <div class="welcome-info" id="welcomeInfo">
+                <p>Setting up your account...</p>
+            </div>
+            
+            <div class="password-display" id="passwordDisplay" style="display: none;">
+                <h3>Your Login Credentials</h3>
+                <div class="credential-box">
+                    <label>Email:</label>
+                    <div id="userEmail" class="credential-value"></div>
+                </div>
+                <div class="credential-box">
+                    <label>Password:</label>
+                    <div id="userPassword" class="credential-value"></div>
+                    <button onclick="copyPassword()" class="copy-btn">📋 Copy</button>
+                </div>
+                <p class="security-note">⚠️ Save this password now! For security, it won't be shown again.</p>
+            </div>
+            
+            <div class="direct-checkout-info" id="directCheckoutInfo" style="display: none;">
+                <p>Your trial has been activated! Check your email for login instructions.</p>
+            </div>
+            
+            <button id="dashboardBtn" class="auth-btn" style="display: none;" onclick="goToDashboard()">
+                Go to Dashboard →
+            </button>
+            
+            <button id="loginBtn" class="auth-btn" style="display: none;" onclick="goToLogin()">
+                Go to Login →
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Get session ID and direct flag from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        const isDirect = urlParams.get('direct') === 'true';
+        
+        if (!sessionId) {
+            window.location.href = '/';
+        } else {
+            completeRegistration();
+        }
+        
+        async function completeRegistration() {
+            try {
+                // Wenn es ein direkter Checkout war, zeige andere Nachricht
+                if (isDirect) {
+                    // Hole Session-Details von Stripe
+                    const response = await fetch('/api/verify-checkout-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sessionId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        document.getElementById('welcomeInfo').style.display = 'none';
+                        document.getElementById('directCheckoutInfo').style.display = 'block';
+                        document.getElementById('loginBtn').style.display = 'block';
+                        
+                        // Optional: Zeige E-Mail wenn verfügbar
+                        if (data.email) {
+                            document.getElementById('directCheckoutInfo').innerHTML = 
+                                `<p>Your trial has been activated for <strong>${data.email}</strong>!</p>
+                                 <p>We've sent you an email with your login credentials.</p>`;
+                        }
+                    }
+                } else {
+                    // Normaler Registrierungsprozess
+                    const response = await fetch('/api/complete-registration', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sessionId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        localStorage.setItem('token', data.token);
+                        
+                        // Show credentials
+                        document.getElementById('welcomeInfo').style.display = 'none';
+                        document.getElementById('passwordDisplay').style.display = 'block';
+                        document.getElementById('dashboardBtn').style.display = 'block';
+                        
+                        document.getElementById('userEmail').textContent = data.user.email;
+                        document.getElementById('userPassword').textContent = data.tempPassword || 'Check your email';
+                    }
+                }
+            } catch (error) {
+                console.error('Setup error:', error);
+                alert('Setup failed. Please contact support.');
+            }
+        }
+        
+        function copyPassword() {
+            const password = document.getElementById('userPassword').textContent;
+            navigator.clipboard.writeText(password);
+            alert('Password copied to clipboard!');
+        }
+        
+        function goToDashboard() {
+            window.location.href = '/dashboard';
+        }
+        
+        function goToLogin() {
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

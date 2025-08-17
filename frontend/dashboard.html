@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ChartMaster AI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar wird dynamisch geladen -->
+        <div id="sidebarContainer"></div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header wird dynamisch geladen -->
+            <div id="headerContainer"></div>
+            
+            <!-- Content Area -->
+            <div class="content-area" id="contentArea">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Upload Modal wird dynamisch geladen -->
+    <div id="uploadModalContainer"></div>
+    
+    <!-- Komponenten laden -->
+    <script src="src/components/Sidebar.js"></script>
+    <script src="src/components/Header.js"></script>
+    <script src="src/components/UploadModal.js"></script>
+    
+    <!-- Dashboard Sections laden -->
+    <script src="src/components/dashboard/AnalysesSection.js"></script>
+    <script src="src/components/dashboard/PatternsSection.js"></script>
+    <script src="src/components/dashboard/AlertsSection.js"></script>
+    <script src="src/components/dashboard/SettingsSection.js"></script>
+    <script src="src/components/dashboard/StylesSection.js"></script>
+    <script src="src/components/dashboard/SupportSection.js"></script>
+    <script src="src/components/dashboard/GuideSection.js"></script>
+    <script src="src/components/dashboard/IdeasSection.js"></script>
+    <script src="src/components/dashboard/UpdatesSection.js"></script>
+    <script src="src/components/dashboard/UploadSection.js"></script>
+    
+    <!-- Neue Mode Sections -->
+    <script src="src/components/dashboard/SimpleMode.js"></script>
+    <script src="src/components/dashboard/ScalpingMode.js"></script>
+    <script src="src/components/dashboard/ProfessionalMode.js"></script>
+    
+    <!-- Helper Functions -->
+    <script src="js/dashboard-helpers.js"></script>
+    
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+        
+        // Global variables
+        let currentSection = 'analyses';
+        let userData = {};
+        let isLoading = false;
+        
+        // Initialize components
+        function initializeComponents() {
+            // Load Sidebar
+            document.getElementById('sidebarContainer').innerHTML = createSidebar();
+            
+            // Load Header
+            document.getElementById('headerContainer').innerHTML = createHeader();
+            
+            // Load Upload Modal
+            document.getElementById('uploadModalContainer').innerHTML = createUploadModal();
+            
+            // Initialize event listeners
+            initializeEventListeners();
+        }
+        
+        // Load user data
+        async function loadUserData() {
+            // Prevent multiple simultaneous loads
+            if (isLoading) {
+                console.log('Already loading user data...');
+                return;
+            }
+            
+            isLoading = true;
+            
+            try {
+                console.log('Loading user data...');
+                
+                const response = await fetch('/api/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error:', errorText);
+                    throw new Error('Unauthorized');
+                }
+                
+                const data = await response.json();
+                console.log('User data loaded:', data);
+                userData = data.user;
+                
+                // Initialize components first
+                initializeComponents();
+                
+                // Update user avatar after components are loaded
+                if (document.getElementById('userAvatar')) {
+                    document.getElementById('userAvatar').textContent = userData.email.charAt(0).toUpperCase();
+                }
+                
+                // Load initial section
+                showSection('analyses');
+                
+                // Success - reset loading flag
+                isLoading = false;
+                
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+                isLoading = false;
+                
+                // Only redirect on real auth errors
+                if (error.message === 'Unauthorized') {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            }
+        }
+        
+        // Show section - KORRIGIERTE VERSION
+        function showSection(section) {
+            console.log('Switching to section:', section);
+            currentSection = section;
+            
+            // Update nav items - WICHTIG: Alle nav-item-premium Elemente updaten
+            document.querySelectorAll('.nav-item-premium').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-section') === section) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update page title
+            const titles = {
+                'analyses': 'My Analyses',
+                'upload': 'Upload Chart',
+                'simple': 'Simple Mode - Easy Analysis',
+                'scalping': 'Scalping Mode - Fast Trades',
+                'professional': 'Professional Mode - Advanced Tools',
+                'patterns': 'Chart Patterns',
+                'alerts': 'Price Alerts',
+                'settings': 'Settings',
+                'styles': 'Analysis Styles',
+                'support': 'Support',
+                'guide': 'User Guide',
+                'ideas': 'Suggest Ideas',
+                'updates': 'Latest Updates'
+            };
+            
+            document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
+            
+            // WICHTIG: Content Area leeren bevor neue Section geladen wird
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = '';
+            
+            // Reset any global states that might interfere
+            window.currentChartData = null;
+            window.uploadedChartData = null;
+            window.modalChartData = null;
+            
+            // Load section content
+            loadSectionContent(section);
+        }
+        
+        // Load section content - KORRIGIERTE VERSION
+        function loadSectionContent(section) {
+            console.log('Loading section content for:', section);
+            
+            switch(section) {
+                case 'analyses':
+                    loadAnalysesSection();
+                    break;
+                case 'upload':
+                    loadUploadSection(); // WICHTIG: Diese Funktion muss aufgerufen werden
+                    break;
+                case 'simple':
+                    loadSimpleMode();
+                    break;
+                case 'scalping':
+                    loadScalpingMode();
+                    break;
+                case 'professional':
+                    loadProfessionalMode();
+                    break;
+                case 'patterns':
+                    loadPatternsSection();
+                    break;
+                case 'alerts':
+                    loadAlertsSection();
+                    break;
+                case 'settings':
+                    loadSettingsSection();
+                    break;
+                case 'styles':
+                    loadStylesSection();
+                    break;
+                case 'support':
+                    loadSupportSection();
+                    break;
+                case 'guide':
+                    loadGuideSection();
+                    break;
+                case 'ideas':
+                    loadIdeasSection();
+                    break;
+                case 'updates':
+                    loadUpdatesSection();
+                    break;
+                default:
+                    console.error('Unknown section:', section);
+                    loadAnalysesSection(); // Fallback
+            }
+        }
+        
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    
+                    // Search through current section content
+                    if (currentSection === 'analyses') {
+                        const analysisItems = document.querySelectorAll('.analysis-item');
+                        analysisItems.forEach(item => {
+                            const title = item.querySelector('.analysis-title')?.textContent.toLowerCase() || '';
+                            const meta = item.querySelector('.analysis-meta')?.textContent.toLowerCase() || '';
+                            
+                            if (title.includes(searchTerm) || meta.includes(searchTerm)) {
+                                item.style.display = 'flex';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Close modal on outside click
+            const uploadModal = document.getElementById('uploadModal');
+            if (uploadModal) {
+                uploadModal.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) {
+                        closeUploadModal();
+                    }
+                });
+            }
+            
+            // Add drag and drop support
+            setupDragAndDrop();
+        }
+        
+        // Setup drag and drop
+        function setupDragAndDrop() {
+            // Wait a bit for the upload area to be created
+            setTimeout(() => {
+                const uploadArea = document.querySelector('.upload-area');
+                if (uploadArea) {
+                    uploadArea.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        uploadArea.style.background = 'rgba(59, 130, 246, 0.05)';
+                    });
+                    
+                    uploadArea.addEventListener('dragleave', () => {
+                        uploadArea.style.background = '';
+                    });
+                    
+                    uploadArea.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        uploadArea.style.background = '';
+                        
+                        const file = e.dataTransfer.files[0];
+                        if (file && file.type.startsWith('image/')) {
+                            handleChartUpload({ target: { files: [file] } });
+                        }
+                    });
+                }
+            }, 500);
+        }
+        
+        // Debug function to check if all components are loaded
+        function debugCheckComponents() {
+            console.log('=== Component Check ===');
+            console.log('loadUploadSection exists:', typeof loadUploadSection !== 'undefined');
+            console.log('loadAnalysesSection exists:', typeof loadAnalysesSection !== 'undefined');
+            console.log('loadPatternsSection exists:', typeof loadPatternsSection !== 'undefined');
+            console.log('loadSimpleMode exists:', typeof loadSimpleMode !== 'undefined');
+            console.log('loadScalpingMode exists:', typeof loadScalpingMode !== 'undefined');
+            console.log('loadProfessionalMode exists:', typeof loadProfessionalMode !== 'undefined');
+            console.log('currentSection:', currentSection);
+        }
+        
+        // Initialize - Load only once!
+        loadUserData();
+        
+        // Debug check after page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(debugCheckComponents, 1000);
+        });
+    </script>
+</body>
+</html>
